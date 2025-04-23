@@ -5,7 +5,12 @@ import StudentItem from "./components/StudentItem"
 function App() {
   const [students, setStudents] = useState([
     { id: 1, name: "Nguyễn Văn A", class: "10A1", age: 16 },
-    { id: 2, name: "Trần Thị B", class: "11B2", age: 17 }
+    { id: 2, name: "Trần Thị B", class: "DHPM", age: 17 },
+    { id: 3, name: "Trần Thị c", class: "DHKT", age: 17 },
+    { id: 4, name: "Trần Thị c", class: "DHKT", age: 17 },
+    { id: 5, name: "Trần Thị c", class: "DHKT", age: 17 },
+    { id: 6, name: "Trần Thị c", class: "DHKT", age: 17 },
+
   ])
 
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" })
