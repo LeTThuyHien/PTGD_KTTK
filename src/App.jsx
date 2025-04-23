@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StudentItem from "./components/StudentItem";
+import "./App.css";
 
 function App() {
   const [students, setStudents] = useState([
