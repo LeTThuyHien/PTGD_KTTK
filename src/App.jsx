@@ -10,7 +10,8 @@ function App() {
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
   const [showForm, setShowForm] = useState(false);
   const [editStudent, setEditStudent] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Thêm state tìm kiếm
+  const [searchTerm, setSearchTerm] = useState(""); // Tìm kiếm theo tên
+  const [selectedClass, setSelectedClass] = useState(""); // Lọc theo lớp
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,38 +57,58 @@ function App() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value.toLowerCase()); // Cập nhật tìm kiếm (không phân biệt hoa thường)
+    setSearchTerm(e.target.value.toLowerCase());
   };
 
-  // Lọc sinh viên theo tên
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm)
-  );
+  const handleClassFilterChange = (e) => {
+    setSelectedClass(e.target.value);
+  };
+
+  // Lọc sinh viên theo tên và lớp
+  const filteredStudents = students
+    .filter((student) =>
+      student.name.toLowerCase().includes(searchTerm)
+    )
+    .filter((student) => (selectedClass ? student.class === selectedClass : true));
 
   return (
     <div className="container">
       <h1>Quản Lý Danh Sách Sinh Viên</h1>
 
-      {/* Input tìm kiếm */}
       <div className="info-title">
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Tìm kiếm sinh viên theo tên"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+        {/* Input tìm kiếm */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Tìm kiếm sinh viên theo tên"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        
+        {/* Dropdown lọc sinh viên theo lớp */}
+        <div className="class-filter-container">
+          <label htmlFor="class-filter">Chọn lớp:</label>
+          <select
+            id="class-filter"
+            value={selectedClass}
+            onChange={handleClassFilterChange}
+          >
+            <option value="">Tất cả lớp</option>
+            <option value="10A1">10A1</option>
+            <option value="11B2">11B2</option>
+            <option value="12C1">12C1</option>
+          </select>
+        </div>
+        
+        {/* Nút hiển thị form thêm sinh viên */}
+        {!showForm && !editStudent && (
+          <button className="btn-add" onClick={() => setShowForm(true)}>
+            Thêm sinh viên
+          </button>
+        )}
       </div>
 
-      {/* Nút hiển thị form thêm sinh viên */}
-      {!showForm && !editStudent && (
-        <button className="btn-add" onClick={() => setShowForm(true)}>
-          Thêm sinh viên
-        </button>
-      )}
-
-      </div>
-      
       {/* Hiển thị overlay và form thêm sinh viên hoặc chỉnh sửa sinh viên */}
       {(showForm || editStudent) && (
         <div className="overlay">
@@ -162,7 +183,7 @@ function App() {
                   colSpan={4}
                   style={{ textAlign: "center", padding: "16px", color: "#888" }}
                 >
-                  Không có sinh viên nào khớp với tìm kiếm!
+                  Không có sinh viên nào khớp với tìm kiếm hoặc lớp đã chọn!
                 </td>
               </tr>
             )}
