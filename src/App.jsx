@@ -5,10 +5,12 @@ function App() {
   const [students, setStudents] = useState([
     { id: 1, name: "Nguyễn Văn A", class: "10A1", age: 16 },
     { id: 2, name: "Trần Thị B", class: "11B2", age: 17 },
+    { id: 3, name: "Lê Minh C", class: "12C1", age: 18 },
   ]);
   const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
   const [showForm, setShowForm] = useState(false);
-  const [editStudent, setEditStudent] = useState(null); // Thêm state để lưu thông tin sinh viên đang chỉnh sửa
+  const [editStudent, setEditStudent] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Thêm state tìm kiếm
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,8 +29,8 @@ function App() {
   };
 
   const handleEditStudent = (student) => {
-    setEditStudent(student); // Lưu thông tin sinh viên cần sửa vào state editStudent
-    setShowForm(true); // Hiển thị form sửa
+    setEditStudent(student);
+    setShowForm(true);
   };
 
   const handleSaveEdit = () => {
@@ -38,8 +40,8 @@ function App() {
           student.id === editStudent.id ? editStudent : student
         )
       );
-      setEditStudent(null); // Reset lại thông tin sinh viên đang sửa
-      setShowForm(false); // Ẩn form sau khi lưu
+      setEditStudent(null);
+      setShowForm(false);
     }
   };
 
@@ -50,12 +52,32 @@ function App() {
   const handleCancel = () => {
     setShowForm(false);
     setNewStudent({ name: "", class: "", age: "" });
-    setEditStudent(null); // Hủy thông tin sửa
+    setEditStudent(null);
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value.toLowerCase()); // Cập nhật tìm kiếm (không phân biệt hoa thường)
+  };
+
+  // Lọc sinh viên theo tên
+  const filteredStudents = students.filter((student) =>
+    student.name.toLowerCase().includes(searchTerm)
+  );
 
   return (
     <div className="container">
       <h1>Quản Lý Danh Sách Sinh Viên</h1>
+
+      {/* Input tìm kiếm */}
+      <div className="info-title">
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Tìm kiếm sinh viên theo tên"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </div>
 
       {/* Nút hiển thị form thêm sinh viên */}
       {!showForm && !editStudent && (
@@ -64,6 +86,8 @@ function App() {
         </button>
       )}
 
+      </div>
+      
       {/* Hiển thị overlay và form thêm sinh viên hoặc chỉnh sửa sinh viên */}
       {(showForm || editStudent) && (
         <div className="overlay">
@@ -123,13 +147,13 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {students.length > 0 ? (
-              students.map((student) => (
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
                 <StudentItem
                   key={student.id}
                   student={student}
                   onDelete={handleDeleteStudent}
-                  onEdit={handleEditStudent} // Thêm onEdit để xử lý sửa thông tin
+                  onEdit={handleEditStudent}
                 />
               ))
             ) : (
@@ -138,7 +162,7 @@ function App() {
                   colSpan={4}
                   style={{ textAlign: "center", padding: "16px", color: "#888" }}
                 >
-                  Không có sinh viên nào. Hãy thêm sinh viên mới!
+                  Không có sinh viên nào khớp với tìm kiếm!
                 </td>
               </tr>
             )}
