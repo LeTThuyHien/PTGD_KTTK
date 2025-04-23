@@ -1,83 +1,109 @@
-import { useState } from "react"
-import "./App.css"
-import StudentItem from "./components/StudentItem"
+import { useState } from "react";
+import StudentItem from "./components/StudentItem";
 
 function App() {
   const [students, setStudents] = useState([
     { id: 1, name: "Nguyễn Văn A", class: "10A1", age: 16 },
-    { id: 2, name: "Trần Thị B", class: "DHPM", age: 17 },
-    { id: 3, name: "Trần Thị c", class: "DHKT", age: 17 },
-    { id: 4, name: "Trần Thị c", class: "DHKT", age: 17 },
-    { id: 5, name: "Trần Thị c", class: "DHKT", age: 17 },
-    { id: 6, name: "Trần Thị c", class: "DHKT", age: 17 },
-
-  ])
-
-  const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" })
-  const [showForm, setShowForm] = useState(false)
+    { id: 2, name: "Trần Thị B", class: "11B2", age: 17 },
+  ]);
+  const [newStudent, setNewStudent] = useState({ name: "", class: "", age: "" });
+  const [showForm, setShowForm] = useState(false);
+  const [editStudent, setEditStudent] = useState(null); // Thêm state để lưu thông tin sinh viên đang chỉnh sửa
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setNewStudent((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setNewStudent((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleAddStudent = () => {
     if (newStudent.name && newStudent.class && newStudent.age) {
-      const newId = Date.now()
-      setStudents((prev) => [...prev, { id: newId, ...newStudent, age: parseInt(newStudent.age) }])
-      setNewStudent({ name: "", class: "", age: "" })
-      setShowForm(false) // Ẩn form sau khi thêm sinh viên
+      setStudents((prev) => [
+        ...prev,
+        { id: Date.now(), ...newStudent, age: parseInt(newStudent.age) },
+      ]);
+      setNewStudent({ name: "", class: "", age: "" });
+      setShowForm(false);
     }
-  }
+  };
+
+  const handleEditStudent = (student) => {
+    setEditStudent(student); // Lưu thông tin sinh viên cần sửa vào state editStudent
+    setShowForm(true); // Hiển thị form sửa
+  };
+
+  const handleSaveEdit = () => {
+    if (editStudent.name && editStudent.class && editStudent.age) {
+      setStudents((prev) =>
+        prev.map((student) =>
+          student.id === editStudent.id ? editStudent : student
+        )
+      );
+      setEditStudent(null); // Reset lại thông tin sinh viên đang sửa
+      setShowForm(false); // Ẩn form sau khi lưu
+    }
+  };
 
   const handleDeleteStudent = (id) => {
-    setStudents((prev) => prev.filter((student) => student.id !== id))
-  }
+    setStudents((prev) => prev.filter((student) => student.id !== id));
+  };
 
   const handleCancel = () => {
-    setShowForm(false)
-    setNewStudent({ name: "", class: "", age: "" }) // Đặt lại giá trị input khi huỷ
-  }
+    setShowForm(false);
+    setNewStudent({ name: "", class: "", age: "" });
+    setEditStudent(null); // Hủy thông tin sửa
+  };
 
   return (
     <div className="container">
       <h1>Quản Lý Danh Sách Sinh Viên</h1>
 
-      {/* Nút hiển thị form */}
-      {!showForm && (
+      {/* Nút hiển thị form thêm sinh viên */}
+      {!showForm && !editStudent && (
         <button className="btn-add" onClick={() => setShowForm(true)}>
           Thêm sinh viên
         </button>
       )}
 
-      {/* Hiển thị overlay và form thêm sinh viên */}
-      {showForm && (
+      {/* Hiển thị overlay và form thêm sinh viên hoặc chỉnh sửa sinh viên */}
+      {(showForm || editStudent) && (
         <div className="overlay">
           <div className="form-add-student">
-          <h1>Thêm Sinh Viên</h1>
-
             <input
               type="text"
               name="name"
               placeholder="Họ tên"
-              value={newStudent.name}
-              onChange={handleInputChange}
+              value={editStudent ? editStudent.name : newStudent.name}
+              onChange={(e) =>
+                editStudent
+                  ? setEditStudent({ ...editStudent, name: e.target.value })
+                  : handleInputChange(e)
+              }
             />
             <input
               type="text"
               name="class"
               placeholder="Lớp"
-              value={newStudent.class}
-              onChange={handleInputChange}
+              value={editStudent ? editStudent.class : newStudent.class}
+              onChange={(e) =>
+                editStudent
+                  ? setEditStudent({ ...editStudent, class: e.target.value })
+                  : handleInputChange(e)
+              }
             />
             <input
               type="number"
               name="age"
               placeholder="Tuổi"
-              value={newStudent.age}
-              onChange={handleInputChange}
+              value={editStudent ? editStudent.age : newStudent.age}
+              onChange={(e) =>
+                editStudent
+                  ? setEditStudent({ ...editStudent, age: e.target.value })
+                  : handleInputChange(e)
+              }
             />
-            <button onClick={handleAddStudent}>Xác nhận</button>
+            <button onClick={editStudent ? handleSaveEdit : handleAddStudent}>
+              {editStudent ? "Lưu chỉnh sửa" : "Xác nhận"}
+            </button>
             <button className="btn-cancel" onClick={handleCancel}>
               Huỷ
             </button>
@@ -99,11 +125,19 @@ function App() {
           <tbody>
             {students.length > 0 ? (
               students.map((student) => (
-                <StudentItem key={student.id} student={student} onDelete={handleDeleteStudent} />
+                <StudentItem
+                  key={student.id}
+                  student={student}
+                  onDelete={handleDeleteStudent}
+                  onEdit={handleEditStudent} // Thêm onEdit để xử lý sửa thông tin
+                />
               ))
             ) : (
               <tr>
-                <td colSpan={4} style={{ textAlign: "center", padding: "16px", color: "#888" }}>
+                <td
+                  colSpan={4}
+                  style={{ textAlign: "center", padding: "16px", color: "#888" }}
+                >
                   Không có sinh viên nào. Hãy thêm sinh viên mới!
                 </td>
               </tr>
@@ -112,7 +146,7 @@ function App() {
         </table>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
